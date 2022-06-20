@@ -1,52 +1,41 @@
-const path = require( 'path' );
+const path = require('path');
+const glob = require('glob-all');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+// const PurgecssPlugin = require('purgecss-webpack-plugin');
 
 module.exports = {
-	entry: [
-		'./assets/css/main.scss',
-		'./assets/js/main.js',
+  entry: {
+    main: './assets/js/main.js'
+  },
+  output: {
+		filename: '[name].min.js',
+		path: path.resolve(__dirname, 'dist'),
+		assetModuleFilename: 'images/[name][ext][query]'
+	},
+  mode: 'production',
+  watch: true,
+  module: {
+    rules: [
+		{
+			test: /\.(sa|sc|c)ss$/,
+			use: [
+				MiniCssExtractPlugin.loader,
+				'css-loader',
+				'sass-loader'
+			],
+		},
+		{
+			test: /\.(jpe?g|png|gif|svg)$/i,
+			type: "asset/resource"
+		}			
 	],
-	output: {
-		path: path.resolve( __dirname, 'dist' ),
-		filename: '[name].bundle.js',
-	},
-	// devtool: 'source-map',
-	mode: 'production',
-	watch: true,
-	module: {
-		rules: [
-			{
-				test: /\.scss$/,
-				use: [
-					{
-						loader: 'file-loader',
-						options: {
-							name: 'main.css',
-						},
-					},
-					{ loader: 'extract-loader' },
-					{ loader: 'css-loader' },
-					{
-						loader: 'postcss-loader',
-						options: {
-							postcssOptions: {
-								plugins: [
-									require( 'autoprefixer' )
-								]
-							},
-						}
-					},
-					{
-						loader: 'sass-loader',
-						options: {
-							implementation: require( 'sass' ),
-							webpackImporter: false, // See https://github.com/webpack-contrib/sass-loader/issues/804
-							sassOptions: {
-								includePaths: [ 'node_modules' ],
-							},
-						},
-					}
-				]
-			},
-		]
-	},
-};
+  },
+  plugins: [
+    new MiniCssExtractPlugin({
+		filename: '[name].min.css',
+      	chunkFilename: "[id].css"		
+	}),
+	new CleanWebpackPlugin(),
+  ],
+}
